@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                            http://www.springframework.org/schema/mvc
+                            http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+    <!-- HandlerMapping -->
+    <bean
+            class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping" />
+    <!-- HandlerAdapter -->
+    <bean
+            class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter" />
+    <!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 -->
+    <mvc:annotation-driven />
+    <mvc:default-servlet-handler />
+    <!-- 这两个类用来启动基于Spring MVC的注解功能，将控制器与方法映射加入到容器中 -->
+    <context:component-scan base-package="com.kokoharry" />
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
+    <!--<bean id="viewResolverComon" class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+        <!--<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />-->
+        <!--&lt;!&ndash; 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 &ndash;&gt;-->
+        <!--<property name="prefix" value="/page/" />-->
+        <!--<property name="suffix" value=".html" />-->
+        <!--<property name="order" value="1"/>-->
+    <!--</bean>-->
+    <!--视图解释器 -->
+    <!-- 配置freeMarker视图解析器 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>
+        <property name="contentType" value="text/html; charset=utf-8"/>
+        <property name="cache" value="false"/>
+        <property name="suffix" value = ".ftl"></property>
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="exposeSessionAttributes" value="true" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+    </bean>
+    <!-- Freemarker配置 -->
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/page/" />
+        <property name="freemarkerVariables">
+            <map>
+                <entry key="xml_escape" value-ref="fmXmlEscape" />
+            </map>
+        </property>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="template_update_delay">0</prop>
+                <prop key="default_encoding">UTF-8</prop>
+                <prop key="number_format">0.##########</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="classic_compatible">true</prop>
+                <prop key="template_exception_handler">ignore</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
+
+    <!-- 拦截器 -->
+    <!--<mvc:interceptors>-->
+        <!-- <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <bean class="com.weixin.core.interceptors.EncodingInterceptor" />
+        </mvc:interceptor> -->
+        <!--<mvc:interceptor>-->
+            <!--<mvc:mapping path="/**" />-->
+            <!--<bean class="com.kokoharry.core.interceptors.AuthInterceptor">-->
+                <!--&lt;!&ndash; 不需要权限验证的地址  &ndash;&gt;-->
+                <!--<property name="excludeUrls">-->
+                    <!--<list>-->
+                        <!--<value>wechat</value>&lt;!&ndash; 登录页面 &ndash;&gt;-->
+                        <!--<value>checkname</value>&lt;!&ndash; 注册时检查用户名是否重复 &ndash;&gt;-->
+                        <!--<value>register</value>&lt;!&ndash; 注册页面 &ndash;&gt;-->
+                        <!--<value>login</value>&lt;!&ndash; 登录操作 &ndash;&gt;-->
+                        <!--<value>logout</value>&lt;!&ndash; 登出操作 &ndash;&gt;-->
+                        <!--<value>validatecode</value>&lt;!&ndash; 生成验证码 &ndash;&gt;-->
+                        <!--<value>user/getUserList</value>-->
+                    <!--</list>-->
+                <!--</property>-->
+            <!--</bean>-->
+        <!--</mvc:interceptor>-->
+    <!--</mvc:interceptors>-->
+</beans>

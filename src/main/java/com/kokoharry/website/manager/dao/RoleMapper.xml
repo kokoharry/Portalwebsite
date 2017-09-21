@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kokoharry.website.manager.dao.RoleMapper" >
+  <resultMap id="BaseResultMap" type="com.kokoharry.website.manager.bean.Role" >
+      <id column="id" property="id" javaType="java.lang.Long" />
+      <result column="role_code" property="roleCode" javaType="java.lang.String" />
+      <result column="role_name" property="roleName" javaType="java.lang.String" />
+      <result column="create_type" property="createType" javaType="java.lang.Integer" />
+    <result column="update_type" property="updateType" javaType="java.lang.Integer" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, role_code, role_name,create_type, update_type
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ROLE
+    <where>
+        id = #{id,jdbcType=VARCHAR}
+    </where>
+  </select>
+
+    <select id="selectOneByCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from ROLE
+        <where>
+            role_code = #{code,jdbcType=VARCHAR}
+        </where>
+    </select>
+</mapper>
