@@ -60,4 +60,17 @@
         from USER
     </select>
 
+    <insert id="insert" parameterType="com.kokoharry.website.manager.bean.User" useGeneratedKeys="true" keyProperty="id">
+        insert into User(user_name, real_name, password, telphone, create_type, create_time, create_user)
+        values(
+          #{userName,jdbcType=VARCHAR},
+          #{realName,jdbcType=VARCHAR},
+          #{password,jdbcType=VARCHAR},
+          #{telphone,jdbcType=VARCHAR},
+          #{createType,jdbcType=INTEGER},
+          now(),
+          #{createUser,jdbcType=BIGINT}
+        )
+    </insert>
+
 </mapper>

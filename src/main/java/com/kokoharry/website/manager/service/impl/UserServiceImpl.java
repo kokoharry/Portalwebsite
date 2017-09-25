@@ -44,4 +44,17 @@ public class UserServiceImpl implements IUserService {
     public int getUsersCount() {
         return userMapper.selectTotalCount();
     }
+
+    @Override
+    public User addUser(User user) {
+        //密码md5赋值
+        if(user != null && user.getPassword() != null){
+            String pwd = user.getPassword();
+            user.setPassword(MessageDigestAlgorithmUtil.getMD5Pwd(pwd));
+            //通过网络模式添加
+            user.setCreateType(1);
+            userMapper.insert(user);
+        }
+        return user;
+    }
 }

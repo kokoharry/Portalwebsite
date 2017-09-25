@@ -17,7 +17,7 @@
 <body style="background-color: #EDEDED">
 
 <!-- 模态弹出窗内容 -->
-<div class="modal" id="mymodal-data" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+<div class="modal" id="mymodal-adddata" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -28,7 +28,7 @@
                 <h4 class="modal-title">用户添加</h4>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="userAddForm">
                     <div class="form-group">
                         <label for="userName" class="control-label">用户名:</label>
                         <input type="text" class="form-control" id="userName">
@@ -39,11 +39,11 @@
                     </div>
                     <div class="form-group">
                         <label for="password" class="control-label">密码:</label>
-                        <input type="text" class="form-control" id="password">
+                        <input type="password" class="form-control" id="password">
                     </div>
                     <div class="form-group">
                         <label for="password2" class="control-label">再次密码:</label>
-                        <input type="text" class="form-control" id="password2">
+                        <input type="password" class="form-control" id="password2">
                     </div>
                     <div class="form-group">
                         <label for="telphone" class="control-label">联系电话:</label>
@@ -53,7 +53,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-primary" onclick="addUser()">保存</button>
             </div>
         </div>
     </div>
@@ -207,11 +207,46 @@
                     ],
                     initComplete:function(){
                         $("#mytool").append('<button type="button" class="btn btn-primary delete" data-toggle="modal" ' +
-                                'data-whatever="@mdo" data-target="#mymodal-data">添加</button>');
+                                'data-whatever="@mdo" data-target="#mymodal-adddata">添加</button>');
                     }
                 });
-//                $("div.toolbar").html("<button class='btn btn-primary delete' data-toggle='modal'data-target='#mymodal-data' data-whatever='@mdo'>修改</button>");
+                //初始化清除浏览器代填数据
+                document.getElementById("userAddForm").reset()
             });
+
+            $("#mymodal-adddata").on("hide.bs.modal",function(){
+                document.getElementById("userAddForm").reset()
+            });
+
+            function checkForm(){
+                return true;
+            }
+
+
+            function addUser(){
+                if(checkForm()){
+                    var userParam = {
+                        "userName":$("#userName").val(),
+                        "realName":$("#realName").val(),
+                        "password":$("#password").val(),
+                        "telphone":$("#telphone").val()
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/system/userAdd' ,
+                        data: {"userName":  $("#userName").val()} ,
+                        dataType: 'json',
+                        async : false, //默认为true 异步
+                        success:function(data){
+                            if(data.toString() == 'false'){
+                                alert('存在');
+                            }else{
+                                alert('不存在');
+                            }
+                        }
+                    });
+                }
+            }
 
     </script>
 </body>

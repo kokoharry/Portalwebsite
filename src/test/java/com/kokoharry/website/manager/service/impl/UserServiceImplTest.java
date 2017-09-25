@@ -39,4 +39,17 @@ public class UserServiceImplTest {
         System.out.println(list.get(0));
     }
 
+    @Test
+    public void addUser() throws Exception {
+        User user = new User();
+        user.setUserName("test1");
+        user.setRealName("测试后");
+        user.setTelphone("1111111111");
+        user.setPassword("123456");
+        user.setCreateType(1);
+        user.setCreateUser(0);
+        userService.addUser(user);
+        System.out.println(user.getId());
+    }
+
 }

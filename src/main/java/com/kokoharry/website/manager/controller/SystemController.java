@@ -60,4 +60,23 @@ public class SystemController {
         return map;
     }
 
+    /**
+     * 用户添加
+     * @param user
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "userAdd",method= RequestMethod.POST)
+    public long addUsers(User user) {
+        //TODO: createUser;
+        logger.debug("/system/userAdd action request param:{"+ user+"}");
+        user.setCreateUser(0);
+        user = userService.addUser(user);
+        logger.debug("/system/userAdd action response result:{"+ user+"}");
+        if(user != null && user.getId() > 0){
+            return user.getId();
+        }
+        return -1;
+    }
+
 }
