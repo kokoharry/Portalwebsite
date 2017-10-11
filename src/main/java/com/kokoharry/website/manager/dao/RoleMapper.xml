@@ -6,11 +6,19 @@
       <result column="role_code" property="roleCode" javaType="java.lang.String" />
       <result column="role_name" property="roleName" javaType="java.lang.String" />
       <result column="create_type" property="createType" javaType="java.lang.Integer" />
-    <result column="update_type" property="updateType" javaType="java.lang.Integer" />
+      <result column="update_type" property="updateType" javaType="java.lang.Integer" />
+      <result column="update_time" property="updateTime" javaType="java.lang.String" />
+      <result column="create_time" property="createTime" javaType="java.lang.String" />
+      <result column="update_user" property="updateUser" javaType="java.lang.Long" />
+      <result column="create_user" property="createUser" javaType="java.lang.Long" />
+      <collection property="roleMenuRelations" column="role_code" ofType="com.kokoharry.website.manager.bean.RoleMenuRelation"  >
+          <result property="menuCode" column="menu_code" />
+          <result property="operationAuthority" column="operation_authority" />
+      </collection>
   </resultMap>
 
   <sql id="Base_Column_List" >
-    id, role_code, role_name,create_type, update_type
+    id, role_code, role_name,create_type, update_type,create_time,create_user,update_time,update_user
   </sql>
 
   <select id="selectByPrimaryKey" resultMap="BaseResultMap">
@@ -30,4 +38,56 @@
             role_code = #{code,jdbcType=VARCHAR}
         </where>
     </select>
+
+    <select id="getRolePermissions" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select r.id,r.role_code,r.role_name,r.create_type,r.update_type,rmr.menu_code,rmr.operation_authority from Role r
+        LEFT JOIN role_menu_relation rmr ON r.role_code = rmr.role_code
+        <where>
+            r.role_code = #{roleCode}
+        </where>
+    </select>
+
+    <select id="getListForPage"  resultMap="BaseResultMap" resultType="java.util.List">
+        select
+        <include refid="Base_Column_List" />
+        FROM ROLE
+        limit #{firstNum},#{limitNum}
+    </select>
+
+    <select id="selectTotalCount"  resultType="java.lang.Integer">
+        select count(1)
+        from ROLE
+    </select>
+
+    <insert id="insert" parameterType="com.kokoharry.website.manager.bean.Role" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into ROLE(role_code, role_name, create_type, create_time, create_user)
+        values(
+        #{roleCode,jdbcType=VARCHAR},
+        #{roleName,jdbcType=VARCHAR},
+        #{createType,jdbcType=INTEGER},
+        now(),
+        #{createUser,jdbcType=BIGINT}
+        )
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM ROLE
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.kokoharry.website.manager.bean.Role">
+        UPDATE ROLE
+        <trim prefix="set" suffixOverrides=",">
+            <if test="roleName!=null">role_name=#{roleName},</if>
+            <if test="updateType!=null">update_type=#{updateType},</if>
+            <if test="updateUser!=null">update_user=#{updateUser},</if>
+        </trim>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
 </mapper>

@@ -46,6 +46,16 @@ public class User extends BaseDomain implements Serializable{
      */
     private int updateType;
 
+    private Role role;
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     /**
      *  取值方法get
      * @return roleCode

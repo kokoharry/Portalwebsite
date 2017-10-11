@@ -3,6 +3,7 @@ package com.kokoharry.website.manager.bean;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 角色表
@@ -30,8 +31,25 @@ public class Role extends BaseDomain implements Serializable{
      */
     private int updateType;
 
+    private List<RoleMenuRelation> roleMenuRelations;
 
-    private Menu menu;
+    private List<Menu> menus;
+
+    public List<RoleMenuRelation> getRoleMenuRelations() {
+        return roleMenuRelations;
+    }
+
+    public void setRoleMenuRelations(List<RoleMenuRelation> roleMenuRelations) {
+        this.roleMenuRelations = roleMenuRelations;
+    }
+
+    public List<Menu> getMenus() {
+        return menus;
+    }
+
+    public void setMenus(List<Menu> menus) {
+        this.menus = menus;
+    }
 
     /**
      * 角色编码 取值方法get
@@ -95,14 +113,6 @@ public class Role extends BaseDomain implements Serializable{
      */
     public void setUpdateType(int updateType) {
         this.updateType = updateType;
-    }
-
-    public Menu getMenu() {
-        return menu;
-    }
-
-    public void setMenu(Menu menu) {
-        this.menu = menu;
     }
 
     @Override

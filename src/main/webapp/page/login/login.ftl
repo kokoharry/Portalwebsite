@@ -24,7 +24,10 @@
     </head>
 
     <script type="text/javascript">
-
+        function changeImg() {
+            var imgSrc = $("#imgObj");
+            imgSrc.attr("src", "/login/getCaptchaImage.jpg?timestamp=" + (new Date()).valueOf());
+        };
     </script>
     <body>
         <!-- Top content -->
@@ -50,6 +53,7 @@
                             </div>
                             <div class="form-bottom">
 			                    <form role="form"  action="/login/login" method="post" class="login-form">
+                                    <input type="hidden" name="timestamp" id="timestamp"/>
 			                    	<div class="form-group">
 			                    		<label class="sr-only" for="userName">Username</label>
 			                        	<input type="text" name="userName" placeholder="Username..." class="form-username form-control" id="userName">
@@ -58,12 +62,20 @@
 			                        	<label class="sr-only" for="password">Password</label>
 			                        	<input type="password" name="password" placeholder="Password..." class="form-password form-control" id="password">
 			                        </div>
+                                    <div class="form-group">
+                                        <input type="text" name="kaptcha" width="100%" id="password">
+                                        <img id="imgObj" alt="验证码" src="/login/getCaptchaImage.jpg" onclick="changeImg()">
+                                    </div>
                                     <#if resultMsg != null && resultMsg != ''>
-                                        <div id="alrmLabel" class="form-group" style="text-align:center;">
-                                            <label style="color: red ">${resultMsg}</label>
+                                        <div class="alert alert-danger alert-dismissable" id="edit-alert-false">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            ${resultMsg}
                                         </div>
                                     </#if>
-                                    <button class="btn">Login</button>
+                                    <button class="btn">登录</button>
                                 </form>
                             </div>
                         </div>

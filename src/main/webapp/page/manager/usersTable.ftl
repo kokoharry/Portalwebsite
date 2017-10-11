@@ -15,7 +15,7 @@
     <link href="/static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
 </head>
 <body style="background-color: #EDEDED">
-
+<input type="hidden" id="menuCode" name="menuCode" />
 <!-- 模态弹出窗内容 -->
 <div class="modal" id="mymodal-adddata" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -54,15 +54,69 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 <button type="button" class="btn btn-primary" onclick="addUser()">保存</button>
+                <div class="alert alert-danger alert-dismissable" id="alert-false">
+                    <button type="button" class="close" data-dismiss="alert"
+                            aria-hidden="true">
+                        &times;
+                    </button>
+                    添加失败！
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 模态弹出窗内容 -->
+<div class="modal" id="mymodal-editdata" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title">用户编辑</h4>
+            </div>
+            <div class="modal-body">
+                <form id="userEditForm">
+                    <div class="form-group">
+                        <label for="id-edit" class="control-label">用户ID:</label>
+                        <input type="text" class="form-control" id="id-edit" disabled="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="userName-edit" class="control-label">用户名:</label>
+                        <input type="text" class="form-control" id="userName-edit">
+                    </div>
+                    <div class="form-group">
+                        <label for="realName-edit" class="control-label">真实姓名:</label>
+                        <input type="text" class="form-control" id="realName-edit">
+                    </div>
+                    <div class="form-group">
+                        <label for="telphone-edit" class="control-label">联系电话:</label>
+                        <input type="text" class="form-control" id="telphone-edit">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="editUserServer()">保存</button>
+                <div class="alert alert-danger alert-dismissable" id="edit-alert-false">
+                    <button type="button" class="close" data-dismiss="alert"
+                            aria-hidden="true">
+                        &times;
+                    </button>
+                    修改失败！
+                </div>
             </div>
         </div>
     </div>
 </div>
 
     <div class="header" style="padding-top: 20px;">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb" style="margin-bottom: 0px;">
             <li><a href="#">系统管理</a></li>
-            <li class="active">用户管理1</li>
+            <li class="active">用户管理</li>
         </ol>
     </div>
     <div id="page-inner">
@@ -84,9 +138,18 @@
                                         <th style="text-align:center"></th>
                                         <th style="text-align:center"></th>
                                         <th style="text-align:center"></th>
+                                        <th style="text-align:center"></th>
+                                        <th style="text-align:center"></th>
                                     </tr>
                                 </thead>
                             </table>
+                            <div class="alert alert-success alert-dismissable" id="alert-success">
+                                <button type="button" class="close" data-dismiss="alert"
+                                        aria-hidden="true">
+                                    &times;
+                                </button>
+                                <label id="alert-msg"></label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -132,6 +195,9 @@
             };
             $(document).ready(function () {
 
+                $('#alert-success').hide();
+                $('#alert-false').hide();
+                $('#edit-alert-false').hide();
                 $("#userTables").DataTable({
 //                    "dom": '<"toolbar">frtip',
                     "dom": "<'row'<'col-xs-2'l><'#mytool.col-xs-4'><'col-xs-6'f>r>t" +
@@ -140,6 +206,7 @@
                     showRowNumber: true,
                     language:lang,  //提示信息
                     searching: false,//搜索
+                    bSort:false,
                     ajax: function (data, callback, settings) {
                         //封装请求参数
                         var param = {};
@@ -147,6 +214,7 @@
                         param.start = data.start;//开始的记录序号
                         param.page = (data.start / data.length)+1;//当前页码
                         param.orderby=data.orderBys;
+                        param.menuCode=$("#menuCode").val();
                         //ajax请求数据
                         $.ajax({
                             type: "post",
@@ -203,11 +271,47 @@
                                 }
                                 return "其他";
                             }
+                        },
+                        {
+                            target:5,
+                            data: "updateType",
+                            title: "更新途径",
+                            render:function(data){
+                                if(data==0){
+                                    return "数据库方式";
+                                }else if(data==1){
+                                    return "网页方式";
+                                }
+                                return "其他";
+                            }
+                        },
+                        {
+                            target:6,
+                            data: null,
+                            title: "操作",
+                            render:function(data,type,row,meta){
+                                var html =
+<#if permission?if_exists && permission?seq_contains("U")>
+                                        "<button type='button' class='btn btn-info' style='padding: 1px;'" +
+                                        " onclick='editUser(\""+row.id+"\")'>编辑</button>" + "&nbsp;" +
+                                        "&nbsp;" + "<button type='button' class='btn btn-warning' style='padding: 1px;'" +
+                                        " onclick='editUser(\""+row.id+"\")'>重置密码</button>"+
+</#if>
+<#if permission?if_exists && permission?seq_contains("D")>
+                                        "&nbsp;<button" +
+                                        " type='button' class='btn btn-info' style='padding: 1px;'" +
+                                        " onclick='deleteUser(\""+row.id+"\")'>删除</button>"+ "&nbsp;" +
+</#if>
+                                "";
+                                return html;
+                            }
                         }
                     ],
                     initComplete:function(){
-                        $("#mytool").append('<button type="button" class="btn btn-primary delete" data-toggle="modal" ' +
+                        <#if permission?if_exists && permission?seq_contains("C")>
+                        $("#mytool").append('<button type="button" class="btn btn-info btn-sm" data-toggle="modal" ' +
                                 'data-whatever="@mdo" data-target="#mymodal-adddata">添加</button>');
+                        </#if>
                     }
                 });
                 //初始化清除浏览器代填数据
@@ -217,6 +321,69 @@
             $("#mymodal-adddata").on("hide.bs.modal",function(){
                 document.getElementById("userAddForm").reset()
             });
+
+            $("#mymodal-editdata").on("hide.bs.modal",function(){
+                document.getElementById("userEditForm").reset()
+            });
+
+            function deleteUser(id){
+                $.ajax({
+                    type: 'POST',
+                    url: '/system/userDel' ,
+                    data: {"id":id,"menuCode":$("#menuCode").val()} ,
+                    dataType: 'json',
+                    async : false, //默认为true 异步
+                    success:function(data){
+                        if(data > 0){
+                            $("#alert-msg").html("删除成功！");
+                            $('#alert-success').show();
+                            $("#userTables").dataTable().fnDraw();
+                        }
+                    }
+                });
+            }
+
+            function editUser(id){
+                var alldata=$('#userTables').dataTable().fnGetData();
+                var obj;
+                for(var i=0;i<alldata.length;i++){
+                    if(alldata[i].id==id){
+                        obj = alldata[i];
+                        break;
+                    }
+                }
+                $("#id-edit").val(obj.id);
+                $("#userName-edit").val(obj.userName);
+                $("#realName-edit").val(obj.realName);
+                $("#telphone-edit").val(obj.telphone);
+                $("#mymodal-editdata").modal("show");
+            }
+
+            function editUserServer(){
+                var userParam = {
+                    "id":$("#id-edit").val(),
+                    "userName":$("#userName-edit").val(),
+                    "realName":$("#realName-edit").val(),
+                    "telphone":$("#telphone-edit").val(),
+                    "menuCode":$("#menuCode").val()
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '/system/userEdit' ,
+                    data: userParam ,
+                    dataType: 'json',
+                    async : false, //默认为true 异步
+                    success:function(data){
+                        if(data > 0){
+                            $("#alert-msg").html("修改成功！");
+                            $('#alert-success').show();
+                            $("#userTables").dataTable().fnDraw();
+                        }else{
+                            $('#edit-alert-false').show();
+                        }
+                    }
+                });
+            }
 
             function checkForm(){
                 return true;
@@ -229,20 +396,24 @@
                         "userName":$("#userName").val(),
                         "realName":$("#realName").val(),
                         "password":$("#password").val(),
-                        "telphone":$("#telphone").val()
+                        "telphone":$("#telphone").val(),
+                        "menuCode":$("#menuCode").val()
                     };
                     $.ajax({
                         type: 'POST',
                         url: '/system/userAdd' ,
-                        data: {"userName":  $("#userName").val()} ,
+                        data: userParam ,
                         dataType: 'json',
                         async : false, //默认为true 异步
                         success:function(data){
-                            if(data.toString() == 'false'){
-                                alert('存在');
-                            }else{
-                                alert('不存在');
-                            }
+                           if(data >= 0){
+                               $('#mymodal-adddata').modal('hide');
+                               $("#alert-msg").html("添加成功！");
+                               $('#alert-success').show();
+                               $("#userTables").dataTable().fnDraw();
+                           }else{
+                               $('#alert-false').show();
+                           }
                         }
                     });
                 }

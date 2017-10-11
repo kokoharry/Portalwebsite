@@ -187,6 +187,50 @@
         <version>7.0</version>
         <scope>provided</scope>
       </dependency>
+    <!-- 登录，权限验证-->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-spring</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-ehcache</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <!-- 验证码-->
+    <!-- https://mvnrepository.com/artifact/com.github.penggle/kaptcha -->
+    <dependency>
+      <groupId>com.github.penggle</groupId>
+      <artifactId>kaptcha</artifactId>
+      <version>2.3.2</version>
+    </dependency>
+    <!-- freemarker + shiro（标签） begin -->
+    <dependency>
+      <groupId>net.mingsoft</groupId>
+      <artifactId>shiro-freemarker-tags</artifactId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.8.0</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -16,7 +16,7 @@ public class BaseDomain implements Serializable{
     /**
      * 创建时间
      */
-    private Date createTime;
+    private String createTime;
 
     /**
      * 创建人
@@ -54,7 +54,7 @@ public class BaseDomain implements Serializable{
      * 创建时间 取值方法get
      * @return createTime
      */
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
@@ -62,7 +62,7 @@ public class BaseDomain implements Serializable{
      * 创建时间 賦值方法set
      * @param createTime
      */
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 

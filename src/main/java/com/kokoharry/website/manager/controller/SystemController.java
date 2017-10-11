@@ -1,9 +1,21 @@
 package com.kokoharry.website.manager.controller;
 
+import com.kokoharry.common.util.BaseController;
+import com.kokoharry.common.util.RoleUtil;
+import com.kokoharry.common.util.ShiroDbRealm;
+import com.kokoharry.website.manager.bean.Menu;
+import com.kokoharry.website.manager.bean.Role;
+import com.kokoharry.website.manager.bean.RoleMenuRelation;
 import com.kokoharry.website.manager.bean.User;
+import com.kokoharry.website.manager.service.IMenuService;
+import com.kokoharry.website.manager.service.IRoleService;
 import com.kokoharry.website.manager.service.IUserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,7 +34,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping(value="/system")
-public class SystemController {
+public class SystemController extends BaseController {
     /**
      * 日志类
      */
@@ -31,15 +43,31 @@ public class SystemController {
     @Resource
     private IUserService userService;
 
+    @Resource
+    private IRoleService roleService;
+
+    @Resource
+    private IMenuService menuService;
+
     /**
      * 用户列表页面跳转
      * @param modelAndView
      * @return
      */
+    @RequiresAuthentication
     @RequestMapping(value = "index")
-    public ModelAndView index(ModelAndView modelAndView) {
-        logger.debug("/manager/index action request");
-        modelAndView.setViewName("manager/table");
+    public ModelAndView index(ModelAndView modelAndView,String menuCode) {
+        logger.debug("/system/index action request param:{menucode:"+menuCode+"}");
+        User user = getCurrentUser();
+        Role role = user.getRole();
+        List<RoleMenuRelation> list = role.getRoleMenuRelations();
+        for(RoleMenuRelation relation : list){
+            if(menuCode!=null && menuCode.equals(relation.getMenuCode())){
+                modelAndView.addObject("permission",RoleUtil.setPermissions(relation.getOperationAuthority()));
+            }
+        }
+        modelAndView.setViewName("manager/usersTable");
+        modelAndView.addObject("menuCode",menuCode);
         return modelAndView;
     }
 
@@ -53,7 +81,6 @@ public class SystemController {
         logger.debug("/system/users action request param:{"+ limit+ ";"+start+"}");
         Map<String,Object> map = new HashMap<>();
         List<User> list = userService.getUsersForPage(start,limit);
-        System.out.println(list.size());
         map.put("data",list);
         map.put("total",userService.getUsersCount());
         logger.debug("/system/users response result =  {" + map + "}");
@@ -67,10 +94,10 @@ public class SystemController {
      */
     @ResponseBody
     @RequestMapping(value = "userAdd",method= RequestMethod.POST)
-    public long addUsers(User user) {
-        //TODO: createUser;
+    public long addUser(User user) {
         logger.debug("/system/userAdd action request param:{"+ user+"}");
-        user.setCreateUser(0);
+        User userCurrent = getCurrentUser();
+        user.setCreateUser(userCurrent.getId());
         user = userService.addUser(user);
         logger.debug("/system/userAdd action response result:{"+ user+"}");
         if(user != null && user.getId() > 0){
@@ -78,5 +105,209 @@ public class SystemController {
         }
         return -1;
     }
+
+    /**
+     * 用户删除
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "userDel",method= RequestMethod.POST)
+    public long deleteUser(long id) {
+        logger.debug("/system/userDel action request param:{"+ id+"}");
+        int result = userService.deleteUser(id);
+        logger.debug("/system/userDel action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 用户编辑
+     * @param user
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "userEdit",method= RequestMethod.POST)
+    public int editUser(User user) {
+        logger.debug("/system/userEdit action request param:{"+ user+"}");
+        User userCurrent = getCurrentUser();
+        user.setUpdateUser(userCurrent.getId());
+        int result = userService.editUser(user);
+        logger.debug("/system/userEdit action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 角色列表页面跳转
+     * @param modelAndView
+     * @return
+     */
+    @RequiresAuthentication
+    @RequestMapping(value = "roleIndex")
+    public ModelAndView RoleIndex(ModelAndView modelAndView,String menuCode) {
+        logger.debug("/system/roleIndex action request param:{menucode:"+menuCode+"}");
+        User user = getCurrentUser();
+        Role role = user.getRole();
+        List<RoleMenuRelation> list = role.getRoleMenuRelations();
+        for(RoleMenuRelation relation : list){
+            if(menuCode!=null && menuCode.equals(relation.getMenuCode())){
+                modelAndView.addObject("permission",RoleUtil.setPermissions(relation.getOperationAuthority()));
+            }
+        }
+        modelAndView.setViewName("manager/rolesTable");
+        modelAndView.addObject("menuCode",menuCode);
+        return modelAndView;
+    }
+
+    /**
+     * 角色列表数据
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "roles",method= RequestMethod.POST)
+    public Map<String,Object> getRoles(int limit, int start) {
+        logger.debug("/system/roles action request param:{"+ limit+ ";"+start+"}");
+        Map<String,Object> map = new HashMap<>();
+        List<Role> list = roleService.getRolesForPage(start,limit);
+        map.put("data",list);
+        map.put("total",roleService.getRolesCount());
+        logger.debug("/system/roles response result =  {" + map + "}");
+        return map;
+    }
+
+    /**
+     * 角色添加
+     * @param role
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "roleAdd",method= RequestMethod.POST)
+    public long addRole(Role role) {
+        logger.debug("/system/roleAdd action request param:{"+ role+"}");
+        User userCurrent = getCurrentUser();
+        role.setCreateUser(userCurrent.getId());
+        role = roleService.addRole(role);
+        logger.debug("/system/roleAdd action response result:{"+ role+"}");
+        if(role != null && role.getId() > 0){
+            return role.getId();
+        }
+        return -1;
+    }
+
+    /**
+     * 角色删除
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "roleDel",method= RequestMethod.POST)
+    public long deleteRole(long id) {
+        logger.debug("/system/roleDel action request param:{"+ id+"}");
+        int result = roleService.deleteRole(id);
+        logger.debug("/system/roleDel action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 角色编辑
+     * @param role
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "roleEdit",method= RequestMethod.POST)
+    public int editRole(Role role) {
+        logger.debug("/system/roleEdit action request param:{"+ role+"}");
+        User userCurrent = getCurrentUser();
+        role.setUpdateUser(userCurrent.getId());
+        int result = roleService.editRole(role);
+        logger.debug("/system/roleEdit action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 角色列表页面跳转
+     * @param modelAndView
+     * @return
+     */
+    @RequiresAuthentication
+    @RequestMapping(value = "menuIndex")
+    public ModelAndView menuIndex(ModelAndView modelAndView,String menuCode) {
+        logger.debug("/system/menuIndex action request param:{menucode:"+menuCode+"}");
+        User user = getCurrentUser();
+        Role role = user.getRole();
+        List<RoleMenuRelation> list = role.getRoleMenuRelations();
+        for(RoleMenuRelation relation : list){
+            if(menuCode!=null && menuCode.equals(relation.getMenuCode())){
+                modelAndView.addObject("permission",RoleUtil.setPermissions(relation.getOperationAuthority()));
+            }
+        }
+        modelAndView.setViewName("manager/menusTable");
+        modelAndView.addObject("menuCode",menuCode);
+        return modelAndView;
+    }
+
+    /**
+     * 角色列表数据
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "menus",method= RequestMethod.POST)
+    public Map<String,Object> getMenus(int limit, int start) {
+        logger.debug("/system/menus action request param:{"+ limit+ ";"+start+"}");
+        Map<String,Object> map = new HashMap<>();
+        List<Menu> list = menuService.getMenusForPage(start,limit);
+        map.put("data",list);
+        map.put("total",menuService.getMenusCount());
+        logger.debug("/system/menus response result =  {" + map + "}");
+        return map;
+    }
+
+    /**
+     * 获取父菜单选项tree列表数据
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "getParentMenus",method= RequestMethod.POST)
+    public List<Map<String,Object>>  getParentMenus() {
+        logger.debug("/system/getParentMenus action request");
+        User user = getCurrentUser();
+        List<Map<String,Object>>  list = menuService.getParentMenusForTree(user.getRoleCode());
+        logger.debug("/system/getParentMenus response result =  {" + list + "}");
+        return list;
+    }
+
+
+    /**
+     * 菜单添加
+     * @param menu
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "menuAdd",method= RequestMethod.POST)
+    public long addMenu(Menu menu) {
+        logger.debug("/system/menuAdd action request param:{"+ menu+"}");
+        User userCurrent = getCurrentUser();
+        menu.setCreateUser(userCurrent.getId());
+        menu = menuService.addMenu(menu);
+        logger.debug("/system/menuAdd action response result:{"+ menu+"}");
+        if(menu != null && menu.getId() > 0){
+            return menu.getId();
+        }
+        return -1;
+    }
+
+    /**
+     * 角色删除
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "menuDel",method= RequestMethod.POST)
+    public long deleteMenu(long id) {
+        logger.debug("/system/menuDel action request param:{"+ id+"}");
+        int result = menuService.deleteMenu(id);
+        logger.debug("/system/menuDel action response result:{"+ result+"}");
+        return result;
+    }
+
 
 }

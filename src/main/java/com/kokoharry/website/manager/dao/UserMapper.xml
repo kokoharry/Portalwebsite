@@ -73,4 +73,25 @@
         )
     </insert>
 
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM USER
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.kokoharry.website.manager.bean.User">
+        UPDATE USER
+        <trim prefix="set" suffixOverrides=",">
+            <if test="userName!=null">user_name=#{userName},</if>
+            <if test="realName!=null">real_name=#{realName},</if>
+            <if test="telphone!=null">telphone=#{telphone},</if>
+            <if test="updateType!=null">update_type=#{updateType},</if>
+            <if test="updateUser!=null">update_user=#{updateUser},</if>
+        </trim>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
 </mapper>

@@ -26,4 +26,9 @@ public class RoleServiceImplTest {
         roleService.getRoleById(1);
     }
 
+    @Test
+    public void getPermissionsByRoleCode(){
+        System.out.println(roleService.getPermissionsByRoleCode("master_help"));
+    }
+
 }

@@ -34,6 +34,10 @@
         $(obj).addClass("active-menu");
         $("#innerPage").href = url;
     }
+
+    function logout(){
+        $(window).attr('location','/login/logout');
+    }
 </script>
 <body>
     <div id="wrapper">
@@ -257,7 +261,7 @@
                         <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
-                        <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        <li><a href="#" onclick="logout()"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
@@ -277,9 +281,10 @@
                         <li>
 
                                 <#if menu.menus?if_exists>
-                                    <a href="${menu.menuHref}"><i class="fa fa-sitemap"></i>${menu.menuName}<span class="fa arrow"></span>
+                                    <a href="${menu.menuHref}?menuCode=${menu.menuCode}"><i class="fa fa-sitemap"></i>${menu
+                                .menuName}<span class="fa arrow"></span>
                                 <#else>
-                                    <a href="${menu.menuHref}" target="innerPage" onclick="changeMenu(this,'${m.menuHref}')"><i class="fa
+                                    <a href="${menu.menuHref}?menuCode=${menu.menuCode}" target="innerPage" onclick="changeMenu(this,'${m.menuHref}?menuCode=${menu.menuCode}')"><i class="fa
                                     fa-sitemap"></i>${menu.menuName}
                                 </#if>
                                     </a>
@@ -288,9 +293,10 @@
                                 <#list menu.menus as m>
                                     <li>
                                             <#if m.menus?if_exists>
-                                                <a href="${m.menuHref}">${m.menuName}<span class="fa arrow"></span>
+                                                <a href="${m.menuHref}?menuCode=${m.menuCode}">${m.menuName}<span
+                                                    class="fa arrow"></span>
                                             <#else>
-                                                <a href="${m.menuHref}" target="innerPage" onclick="changeMenu(this,'${m.menuHref}')
+                                                <a href="${m.menuHref}?menuCode=${m.menuCode}" target="innerPage" onclick="changeMenu(this,'${m.menuHref}?menuCode=${m.menuCode}')
 ">${m.menuName}
                                             </#if>
                                                 </a>
@@ -298,7 +304,7 @@
                                             <ul class="nav nav-third-level">
                                                 <#list m.menus as ms>
                                                     <li>
-                                                        <a href="#" onclick="changeMenu(this,'${m.menuHref}')">${ms.menuName}</a>
+                                                        <a href="#" onclick="changeMenu(this,'${m.menuHref}?menuCode=${m.menuCode}')">${ms.menuName}</a>
                                                     </li>
                                                 </#list>
                                             </ul>
@@ -314,7 +320,7 @@
         </nav>
         <!-- /. NAV SIDE  -->
         <div id="page-wrapper">
-            <iframe id="innerPage" name="innerPage" src="/login/mainPage"  width="100%" height="1500px" frameborder="0"
+            <iframe id="innerPage" name="innerPage" src="/login/mainPage"  width="100%" height="700px" frameborder="0"
                     scrolling="no"
                     style="border:0px;"/>
         </div>

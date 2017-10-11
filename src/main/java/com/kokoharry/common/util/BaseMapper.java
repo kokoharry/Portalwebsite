@@ -30,7 +30,7 @@ public interface BaseMapper<T> {
      * @param id
      * @return
      */
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(@Param("id")Long id);
 
     /**
      * @param record
@@ -39,10 +39,10 @@ public interface BaseMapper<T> {
     int insert(T record);
 
     /**
-     * @param id
+     * @param record
      * @return
      */
-    int updateByPrimaryKey(Long id);
+    int updateByPrimaryKey(T record);
 
     /**
      * @param record
@@ -53,6 +53,5 @@ public interface BaseMapper<T> {
     List<T> getListForPage(T condition,@Param("firstNum")int firstNum,@Param("limitNum")int limitNum);
 
     int selectTotalCount();
-
 
 }

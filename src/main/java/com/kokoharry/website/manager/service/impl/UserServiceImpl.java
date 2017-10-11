@@ -57,4 +57,15 @@ public class UserServiceImpl implements IUserService {
         }
         return user;
     }
+
+    @Override
+    public int deleteUser(long id) {
+        return userMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public int editUser(User user) {
+        user.setUpdateType(1);
+        return userMapper.updateByPrimaryKey(user);
+    }
 }

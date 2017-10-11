@@ -30,7 +30,7 @@ public class UserServiceImplTest {
 
     @Test
     public void getUserForLogin() throws Exception {
-        userService.getUserForLogin("kokoharry","423111lyb");
+        User user = userService.getUserForLogin("kokoharry","423111lyb");
     }
 
     @Test
@@ -50,6 +50,18 @@ public class UserServiceImplTest {
         user.setCreateUser(0);
         userService.addUser(user);
         System.out.println(user.getId());
+    }
+
+    @Test
+    public void editUser() throws Exception {
+        User user = new User();
+        user.setId(100);
+        user.setUserName("test1111");
+        user.setRealName("测试后111");
+        user.setTelphone("1111111111222");
+        user.setUpdateUser(0);
+        int res = userService.editUser(user);
+        System.out.println(res);
     }
 
 }

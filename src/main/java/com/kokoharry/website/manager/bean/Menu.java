@@ -45,9 +45,17 @@ public class Menu extends BaseDomain implements Serializable{
      */
     public int updateType;
 
+    private RoleMenuRelation roleMenuRelation;
 
     public List<Menu> menus;
 
+    public RoleMenuRelation getRoleMenuRelation() {
+        return roleMenuRelation;
+    }
+
+    public void setRoleMenuRelation(RoleMenuRelation roleMenuRelation) {
+        this.roleMenuRelation = roleMenuRelation;
+    }
 
     /**
      * 菜单编码 取值方法get
