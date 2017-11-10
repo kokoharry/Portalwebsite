@@ -11,20 +11,13 @@
                             http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <aop:config proxy-target-class="true"></aop:config>
-    <!-- 配置缓存管理器 -->
-    <!--<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">-->
-        <!--&lt;!&ndash; 指定 ehcache 的配置文件 &ndash;&gt;-->
-    <!--</bean>-->
     <!-- 配置进行授权和认证的 Realm -->
     <bean id="myRealm" class="com.kokoharry.common.util.ShiroDbRealm">
     </bean>
-
     <!-- Shiro安全管理器 -->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="realm" ref="myRealm"/>
-        <!--<property name="cacheManager" ref="cacheManager"/>-->
     </bean>
-
     <!--
        Shiro主过滤器本身功能十分强大，其强大之处就在于它支持任何基于URL路径表达式的、自定义的过滤器的执行
        Web应用中，Shiro可控制的Web请求必须经过Shiro主过滤器的拦截，Shiro对基于Spring的Web应用提供了完美的支持

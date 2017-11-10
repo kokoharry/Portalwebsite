@@ -25,5 +25,8 @@ public interface IRoleService {
 
     int editRole(Role role);
 
+    List<Role> getRolesByMenuCodeForRelation(String menuCode);
+
+    List<Role> getOtherRolesByMenuCodeForRelation(String menuCode);
 
 }

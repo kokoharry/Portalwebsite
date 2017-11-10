@@ -2,11 +2,16 @@ package com.kokoharry.website.manager.service.impl;
 
 import com.kokoharry.website.manager.bean.Menu;
 import com.kokoharry.website.manager.bean.Role;
+import com.kokoharry.website.manager.bean.RoleMenuRelation;
+import com.kokoharry.website.manager.controller.LoginController;
 import com.kokoharry.website.manager.dao.MenuMapper;
 import com.kokoharry.website.manager.dao.RoleMapper;
+import com.kokoharry.website.manager.dao.RoleMenuRelationMapper;
 import com.kokoharry.website.manager.service.IMenuService;
 import com.kokoharry.website.manager.service.IRoleService;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,8 +26,16 @@ import java.util.Map;
 @Service("menuService")
 public class MenuServiceImpl implements IMenuService {
 
+    /**
+     * 日志类
+     */
+    public static Logger logger = LogManager.getLogger(MenuServiceImpl.class);
+
     @Resource
     private MenuMapper menuMapper;
+
+    @Resource
+    private RoleMenuRelationMapper roleMenuRelationMapper;
 
     @Override
     public List<Menu> getMenusByRoleCode(String roleCode) {
@@ -72,6 +85,31 @@ public class MenuServiceImpl implements IMenuService {
         List<Menu> list =  getMenusByRoleCode(roleCode);
         List<Map<String,Object>> result = putNodesMenus(list);
         return result;
+    }
+
+    @Override
+    public int grantMenuRoles(String menuCode, String roleCodes,long userCode) {
+        try{
+            String[] array = roleCodes.split(",");
+            if(array != null && array.length>0){
+                roleMenuRelationMapper.deleteByMenuCode(menuCode);
+            }
+            for(String string : array){
+                RoleMenuRelation roleMenuRelation = new RoleMenuRelation();
+                roleMenuRelation.setMenuCode(menuCode);
+                roleMenuRelation.setRoleCode(string);
+                roleMenuRelation.setUpdateUser(userCode);
+                roleMenuRelation.setCreateUser(userCode);
+                roleMenuRelation.setOperationAuthority(0);
+                roleMenuRelation.setUpdateType(1);
+                roleMenuRelationMapper.insert(roleMenuRelation);
+            }
+            return 1;
+        }catch (Exception e){
+            logger.error("菜单角色授权异常",e);
+        }
+        return 0;
+
     }
 
     private List<Map<String,Object>> putNodesMenus(List<Menu> menus) {

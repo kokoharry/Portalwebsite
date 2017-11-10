@@ -1,6 +1,7 @@
 package com.kokoharry.website.manager.service;
 
 import com.kokoharry.website.manager.bean.Menu;
+import com.kokoharry.website.manager.bean.Role;
 
 import java.util.List;
 import java.util.Map;
@@ -23,4 +24,6 @@ public interface IMenuService {
     int editMenu(Menu menu);
 
     List<Map<String,Object>> getParentMenusForTree(String roleCode);
+
+    int grantMenuRoles(String menuCode, String roleCodes,long userCode);
 }

@@ -1,19 +1,24 @@
 package com.kokoharry.common.util;
 
 import com.kokoharry.website.manager.bean.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationException;
-import org.apache.shiro.authz.UnauthorizedException;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.mozilla.universalchardet.UniversalDetector;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Created by luyb on 2017/9/27.
  */
 public class BaseController {
+
+    /**
+     * 日志类
+     */
+    private static Logger logger = LogManager.getLogger(BaseController.class);
 
     @ExceptionHandler({AuthorizationException.class})
     public ModelAndView processAuthorizationException(AuthorizationException ex) {
@@ -31,6 +36,39 @@ public class BaseController {
             throw new AuthorizationException("用户还没有登录");
         }
         return user;
+    }
+
+    /**
+     * 收集自动转码处理类
+     * @param message
+     */
+    public String autoDecodeHandler(byte[] message) {
+        String messageStr = "";
+        try {
+            messageStr = new String(message,encodingHandleData(message));
+        } catch (UnsupportedEncodingException e) {
+            logger.error("自动转换编码异常",e);
+        }
+        return messageStr;
+    }
+
+    /**
+     * 根据字节信息获取当前字节信息的编码
+     * @param bytes 字节信息
+     * @return
+     */
+    public static String encodingHandleData(byte[] bytes) {
+        //设置默认编码，通过获取系统编码
+        String DEFAULT_ENCODING = System.getProperty("file.encoding");
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(bytes, 0, bytes.length);
+        detector.dataEnd();
+        String encoding = detector.getDetectedCharset();
+        detector.reset();
+        if (encoding == null) {
+            encoding = DEFAULT_ENCODING;
+        }
+        return encoding;
     }
 
 }

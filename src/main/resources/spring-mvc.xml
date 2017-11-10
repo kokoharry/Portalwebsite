@@ -53,6 +53,19 @@
 
     <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
 
+    <!-- 支持上传文件 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+
+    <!--<bean id="freeMarkerConfigurer" class="freemarker.template.Configuration">-->
+        <!--<property name="directoryForTemplateLoading" value="/WEB-INF/" />-->
+        <!--<property name="freemarkerSettings">-->
+            <!--<props>-->
+                <!--<prop key="template_update_delay">0</prop>-->
+                <!--<prop key="default_encoding">UTF-8</prop>-->
+            <!--</props>-->
+        <!--</property>-->
+    <!--</bean>-->
+
     <!-- 拦截器 -->
     <!--<mvc:interceptors>-->
         <!-- <mvc:interceptor>

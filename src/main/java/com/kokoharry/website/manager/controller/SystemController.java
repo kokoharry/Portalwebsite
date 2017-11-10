@@ -10,6 +10,7 @@ import com.kokoharry.website.manager.bean.User;
 import com.kokoharry.website.manager.service.IMenuService;
 import com.kokoharry.website.manager.service.IRoleService;
 import com.kokoharry.website.manager.service.IUserService;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -306,6 +307,39 @@ public class SystemController extends BaseController {
         logger.debug("/system/menuDel action request param:{"+ id+"}");
         int result = menuService.deleteMenu(id);
         logger.debug("/system/menuDel action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 根据菜单code或者菜单权限角色，以及所有角色
+     * @param menuCode
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "getMenuRoles",method= RequestMethod.POST)
+    public Map<String,Object> getMenuRoles(String menuCode) {
+        logger.debug("/system/getMenuRoles action request param:{"+ menuCode+"}");
+        Map<String,Object> result = new HashMap<>();
+        List<Role> list = roleService.getRolesByMenuCodeForRelation(menuCode);
+        result.put("have",list);
+        List<Role> list1 = roleService.getOtherRolesByMenuCodeForRelation(menuCode);
+        result.put("other",list1);
+        logger.debug("/system/getMenuRoles action response result:{"+ result+"}");
+        return result;
+    }
+
+    /**
+     * 根据菜单code或者菜单权限角色，以及所有角色
+     * @param menuCode
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "grantMenuRoles",method= RequestMethod.POST)
+    public int grantMenuRoles(String menuCode, String roleCodes) {
+        logger.debug("/system/grantMenuRoles action request param:{menuCode:"+ menuCode+",roleCodes:"+roleCodes+"}");
+        User userCurrent = getCurrentUser();
+        int result = menuService.grantMenuRoles(menuCode,roleCodes,userCurrent.getId());
+        logger.debug("/system/grantMenuRoles action response result:{"+ result+"}");
         return result;
     }
 

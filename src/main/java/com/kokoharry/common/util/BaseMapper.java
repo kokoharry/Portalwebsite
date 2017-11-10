@@ -50,6 +50,13 @@ public interface BaseMapper<T> {
      */
     int updateByConditions(T record);
 
+    /**
+     *
+     * @param condition
+     * @param firstNum
+     * @param limitNum
+     * @return
+     */
     List<T> getListForPage(T condition,@Param("firstNum")int firstNum,@Param("limitNum")int limitNum);
 
     int selectTotalCount();

@@ -60,4 +60,17 @@ public class RoleServiceImpl implements IRoleService {
         role.setUpdateType(1);
         return roleMapper.updateByPrimaryKey(role);
     }
+
+    @Override
+    public List<Role> getRolesByMenuCodeForRelation(String menuCode) {
+        return roleMapper.getRolesByMenuCodeForRelation(menuCode);
+    }
+
+    @Override
+    public List<Role> getOtherRolesByMenuCodeForRelation(String menuCode) {
+        List<Role> list = roleMapper.getOtherRolesByMenuCodeForRelation(menuCode);
+        return list;
+    }
+
+
 }

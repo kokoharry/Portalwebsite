@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kokoharry.website.manager.dao.CodeGenrateMapper" >
+
+    <update id="doSql" parameterType="String">
+        ${value}
+    </update>
+
+    <update id="doDropTable" parameterType="String">
+        drop TABLE `${value}`;
+    </update>
+
+    <resultMap type="com.kokoharry.website.manager.bean.Class" id="CLassMapper">
+        <!--<id column="_id" property="id"/>-->
+        <!-- 对普通列的映射定义 -->
+        <result column="table_name" property="classname"/>
+        <result column="table_comment" property="comment"/>
+    </resultMap>
+    <resultMap type="com.kokoharry.website.manager.bean.Property" id="PropertyMapper">
+        <result column="column_name" property="propertyName"/>
+        <result column="data_type" property="type"/>
+        <result column="column_comment" property="comment"/>
+    </resultMap>
+
+    <select id="selectTables" resultMap="CLassMapper">
+        SELECT
+        *
+        FROM
+        information_schema.TABLES
+        WHERE
+        table_name = #{0};
+    </select>
+
+    <select id="selectColumns" resultMap="PropertyMapper">
+        SELECT
+        *
+        FROM
+        information_schema. COLUMNS
+        WHERE
+        TABLE_NAME = #{0};
+    </select>
+
+</mapper>

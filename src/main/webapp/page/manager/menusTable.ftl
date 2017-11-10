@@ -14,6 +14,7 @@
     <!-- JS Scripts-->
     <!-- jQuery Js -->
     <script src="/static/assets/js/jquery-1.10.2.js"></script>
+    <script src="/static/mutilSelect/js/jquery-ui.js"></script>
     <!-- Bootstrap Js -->
     <script src="/static/assets/js/bootstrap.min.js"></script>
     <!-- Metis Menu Js -->
@@ -25,8 +26,8 @@
     <link href="/static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
     <script src="/static/tree/bootstrap-treeview.js" type="text/javascript"></script>
     <link href="/static/tree/bootstrap-treeview.css" rel="stylesheet" type="text/css" />
-    <script src="/static/pickList/pickList.js" type="text/javascript"></script>
-    <link href="/static/pickList/pickList.css" rel="stylesheet" type="text/css" />
+    <script src="/static/mutilSelect/js/fieldChooser.min.js" type="text/javascript"></script>
+    <link href="/static/mutilSelect/css/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body style="background-color: #EDEDED">
 <input type="hidden" id="menuCode" name="menuCode" />
@@ -93,7 +94,7 @@
 </div>
 
 <div class="modal" id="mymodal-grantdata" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
-     aria-hidden="true">
+     aria-hidden="true" >
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -106,7 +107,26 @@
             <div class="modal-body">
                 <form id="menuGrantForm" class="form-horizontal">
                     <div class="form-group">
-                        <div id="pickList"></div>
+                        <label for="menuNameGrant" class="col-sm-2 control-label">父菜单:</label>
+                        <div class="col-sm-10">
+                            <input type="hidden" id="menuCodeGrant" name="menuCodeGrant">
+                            <input type="text" class="form-control" id="menuNameGrant" name="menuNameGrant" disabled />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <#--<div id="pickList"></div>-->
+                            <div id="fieldChooser" tabIndex="1">
+                                <div style="text-align: center">
+                                    <label>所有角色</label>
+                                    <div id="sourceFields" >
+                                    </div>
+                                </div>
+                                <div style="text-align: center">
+                                    <label>选中角色</label>
+                                    <div id="destinationFields">
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </form>
 
@@ -119,7 +139,7 @@
                             aria-hidden="true">
                         &times;
                     </button>
-                    添加失败！
+                    授权失败！请联系管理员
                 </div>
             </div>
         </div>
@@ -237,25 +257,9 @@
 </div><!-- /.modal -->
 <script type="text/javascript">
 
-    var val = {
-        01: {id: 01, text: 'Isis'},
-        02: {id: 02, text: 'Sophia'},
-        03: {id: 03, text: 'Alice'},
-        04: {id: 04, text: 'Isabella'},
-        05: {id: 05, text: 'Manuela'},
-        06: {id: 06, text: 'Laura'},
-        07: {id: 07, text: 'Luiza'},
-        08: {id: 08, text: 'Valentina'},
-        09: {id: 09, text: 'Giovanna'},
-        10: {id: 10, text: 'Maria Eduarda'},
-        11: {id: 11, text: 'Helena'},
-        12: {id: 12, text: 'Beatriz'},
-        13: {id: 13, text: 'Maria Luiza'},
-        14: {id: 14, text: 'Lara'},
-        15: {id: 15, text: 'Julia'}
-    };
+    $(document).ready(function () {
 
-
+    });
 
     var lang = {
         "sProcessing": "处理中...",
@@ -391,7 +395,7 @@
                     title: "操作",
                     render:function(data,type,row,meta){
                         var html =
-                        <#if permission?if_exists && permission?seq_contains("U")>
+                        <#if permission?? && permission?seq_contains("U")>
                         "<button type='button' class='btn btn-info' style='padding: 1px;'" +
                         " onclick='editRole(\""+row.id+"\")'>编辑</button>" + "&nbsp;" +
                         "&nbsp;"+
@@ -399,7 +403,7 @@
                         " onclick='grantRole(\""+row.id+"\")'>分配角色</button>" + "&nbsp;" +
                         "&nbsp;"+
                         </#if>
-                        <#if permission?if_exists && permission?seq_contains("D")>
+                        <#if permission?? && permission?seq_contains("D")>
                         "<button" +
                         " type='button' class='btn btn-info' style='padding: 1px;'" +
                         " onclick='deleteMenuConfirm(\""+row.id+"\")'>删除</button>"+ "&nbsp;" +
@@ -410,7 +414,7 @@
                 }
             ],
             initComplete:function(){
-            <#if permission?if_exists && permission?seq_contains("C")>
+            <#if permission?? && permission?seq_contains("C")>
                 $("#mytool").append('<button type="button" class="btn btn-info btn-sm" data-toggle="modal" ' +
                         'data-whatever="@mdo" data-target="#mymodal-adddata">添加</button>');
             </#if>
@@ -418,7 +422,6 @@
         });
         //初始化清除浏览器代填数据
         document.getElementById("menuAddForm").reset()
-
 
         getTree();
     });
@@ -496,17 +499,46 @@
     }
 
     function grantRole(id){
-//        var alldata=$('#roleTable').dataTable().fnGetData();
-//        var obj;
-//        for(var i=0;i<alldata.length;i++){
-//            if(alldata[i].id==id){
-//                obj = alldata[i];
-//                break;
-//            }
-//        }
+
+        $("#destinationFields").empty();
+        $("#sourceFields").empty();
+        var alldata=$('#menuTable').dataTable().fnGetData();
+        var obj;
+        for(var i=0;i<alldata.length;i++){
+            if(alldata[i].id==id){
+                obj = alldata[i];
+                break;
+            }
+        }
+        $("#menuNameGrant").val(obj.menuName);
+        $("#menuCodeGrant").val(obj.menuCode);
+
+        $.ajax({
+            type: 'POST',
+            url: '/system/getMenuRoles' ,
+            data: {"menuCode":obj.menuCode} ,
+            dataType: 'json',
+            async : false, //默认为true 异步
+            success:function(data){
+                if(data != null){
+                    if(data.other != null && data.other.length > 0) {
+                        for (var i=0;i<data.other.length;i++) {
+                            $("#sourceFields").append('<div>' + data.other[i].roleCode + ':' + data.other[i].roleName + '</div>');
+                        }
+                    }
+                    if(data.have != null && data.have.length > 0) {
+                        for (var i=0;i<data.have.length;i++) {
+                            $("#destinationFields").append('<div>' + data.have[i].roleCode + ':' + data.have[i].roleName + '</div>');
+                        }
+                    }
+
+                    var $sourceFields = $("#sourceFields");
+                    var $destinationFields = $("#destinationFields");
+                    var $chooser = $("#fieldChooser").fieldChooser(sourceFields, destinationFields);
+                }
+            }
+        });
         //清理数据
-        $("#pickList").empty();
-        var pick = $("#pickList").pickList({data: val});
         $("#mymodal-grantdata").modal("show");
     }
 
@@ -537,6 +569,34 @@
 
     function checkForm(){
         return true;
+    }
+
+    function grantMenu(){
+        var roleCodes = "";
+        var array = $("#destinationFields").children();
+        for(var i=0;i<array.length;i++){
+            roleCodes += array[i].innerText.split(":")[0]+",";
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/system/grantMenuRoles' ,
+            data: {
+                "menuCode":$("#menuCodeGrant").val(),
+                "roleCodes": roleCodes
+            } ,
+            dataType: 'json',
+            async : false, //默认为true 异步
+            success:function(data){
+                if(data > 0){
+                    $('#mymodal-grantdata').modal('hide');
+                    $("#alert-msg").html("授权成功！需要重新登录才能生效！");
+                    $('#alert-success').show();
+                }else{
+                    $('#alert-grant-false').show();
+                }
+            }
+        });
     }
 
 
